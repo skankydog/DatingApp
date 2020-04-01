@@ -58,7 +58,11 @@ namespace DatingApp.API.Controllers
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, userFromRepo.Id.ToString()),
-                new Claim(ClaimTypes.Name, userFromRepo.Username)
+                new Claim(ClaimTypes.Name, userFromRepo.Username),
+                new Claim(ClaimTypes.Role, "Administrator"),
+                new Claim(ClaimTypes.Surname, "Danckert"),
+                new Claim(ClaimTypes.UserData, "UserData")
+                
             };
 
             // create credentials from the key provided in the configuration file...
