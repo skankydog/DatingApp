@@ -35,5 +35,4 @@ export class AlertifyService {
     console.log('MESSAGE: ' + message);
     alertify.message(message);
   }
-  
 }
