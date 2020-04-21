@@ -12,7 +12,8 @@ export class AuthService {
   jwtHelper = new JwtHelperService();
   decodedToken: any;
   // I think we should hold claims, Preferred name etc here and make
-  // available for modules to use...
+  // available for modules to use... having the whole decoded token seems
+  // overkill.
 
   constructor(private http: HttpClient) { }
 
