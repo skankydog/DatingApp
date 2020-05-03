@@ -7,6 +7,7 @@ import { BsDropdownModule, TabsModule } from 'ngx-bootstrap';
 import { RouterModule } from '@angular/router';
 import { NgxGalleryModule } from '@kolkov/ngx-gallery';
 import { JwtModule } from '@auth0/angular-jwt';
+import { FileUploadModule } from 'ng2-file-upload';
 
 import { AppComponent } from './app.component';
 import { NavComponent } from './nav/nav.component';
@@ -25,7 +26,10 @@ import { MemberListResolver } from './_routeResolvers/member-list.resolver';
 import { MemberEditComponent } from './members/member-edit/member-edit.component';
 import { MemberEditResolver } from './_routeResolvers/member-edit.resolver';
 import { PreventUnsavedChanges } from './_routeGuards/prevent-unsaved-changes.guard';
+import { PhotoEditorComponent } from './members/photo-editor/photo-editor.component';
 
+// TEMPLATE: I don't understand I get this, but is needed to get the token on a page refresh (I think). I would
+// like to move this logic into the AuthService anyway.
 export function getter() {
    return localStorage.getItem('token');
 }
@@ -52,7 +56,8 @@ export class CustomHammerConfig extends HammerGestureConfig {
       MemberDetailComponent,
       MemberEditComponent,
       ListsComponent,
-      MessagesComponent
+      MessagesComponent,
+      PhotoEditorComponent
    ],
    imports: [
       BrowserModule,
@@ -63,9 +68,10 @@ export class CustomHammerConfig extends HammerGestureConfig {
       TabsModule.forRoot(),
       RouterModule.forRoot(appRoutes),
       NgxGalleryModule,
+      FileUploadModule,
       JwtModule.forRoot({
          config: {
-            tokenGetter: getter,
+            tokenGetter: getter, // TEMPLATE: configure the getter for page refreshes
             whitelistedDomains: ['localhost:5000'],
             blacklistedRoutes: ['localhost:5000/api/auth']
          }

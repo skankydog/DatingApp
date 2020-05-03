@@ -12,7 +12,7 @@ export class MemberDetailResolver implements Resolve<User> {
 
     resolve(route: ActivatedRouteSnapshot): Observable<User> {
         this.alertify.message('About to retrieve detail data');
-        return this.userService.getUser(route.params['id']).pipe(
+        return this.userService.get(route.params['id']).pipe(
             catchError(error => {
                 this.alertify.error('Problem retrieving detail data');
                 this.router.navigate(['/members']);

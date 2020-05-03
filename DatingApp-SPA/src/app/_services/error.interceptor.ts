@@ -3,6 +3,7 @@ import { HttpInterceptor, HttpErrorResponse, HTTP_INTERCEPTORS } from '@angular/
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
+// TEMPLATE: this whole thing is required to ensure the different errors can be handled consistently...
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
     intercept(
