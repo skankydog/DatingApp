@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent implements OnInit {
-  @Output() cancelEvent = new EventEmitter();
+  @Output() cancel = new EventEmitter();
   user: User;
   registerForm: FormGroup;
   myBsConfig: Partial<BsDatepickerConfig>;
@@ -81,7 +81,7 @@ export class RegisterComponent implements OnInit {
     console.log(this.registerForm.value);
   }
 
-  cancel() {
-    this.cancelEvent.emit();
+  cancelClicked() {
+    this.cancel.emit();
   }
 }

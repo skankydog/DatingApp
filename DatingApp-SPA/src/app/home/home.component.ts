@@ -14,11 +14,11 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
   }
 
-  enterRegisterMode() {
-    this.registerMode = true;
-  }
+  // enterRegisterMode() {
+  //   this.registerMode = true;
+  // }
 
-  exitRegisterMode() {
-    this.registerMode = false;
-  }
+  // exitRegisterMode() {
+  //   this.registerMode = false;
+  // }
 }
