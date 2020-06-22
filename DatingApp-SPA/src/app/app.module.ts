@@ -30,6 +30,8 @@ import { MemberEditResolver } from './_routeResolvers/member-edit.resolver';
 import { PreventUnsavedChanges } from './_routeGuards/prevent-unsaved-changes.guard';
 import { PhotoEditorComponent } from './members/photo-editor/photo-editor.component';
 import { ListsResolver } from './_routeResolvers/lists.resolver';
+import { MessagesResolver } from './_routeResolvers/messages.resolver';
+import { MemberMessagesComponent } from './members/member-messages/member-messages.component';
 
 // TEMPLATE: I don't understand I get this, but is needed to get the token on a page refresh (I think). I would
 // like to move this logic into the AuthService anyway.
@@ -64,7 +66,8 @@ export class CustomHammerConfig extends HammerGestureConfig {
       MemberEditComponent,
       ListsComponent,
       MessagesComponent,
-      PhotoEditorComponent
+      PhotoEditorComponent,
+      MemberMessagesComponent
    ],
    imports: [
       BrowserModule,
@@ -96,6 +99,7 @@ export class CustomHammerConfig extends HammerGestureConfig {
       MemberDetailResolver,
       MemberEditResolver,
       MemberListResolver,
+      MessagesResolver,
       { provide: HAMMER_GESTURE_CONFIG, useClass: CustomHammerConfig }, // this line is added to get around a known issue in Ngx Gallery
       PreventUnsavedChanges,
       ListsResolver

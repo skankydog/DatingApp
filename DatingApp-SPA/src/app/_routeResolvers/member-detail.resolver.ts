@@ -12,13 +12,17 @@ export class MemberDetailResolver implements Resolve<User> {
 
     resolve(route: ActivatedRouteSnapshot): Observable<User> {
         this.alertify.message('About to retrieve detail data');
-        return this.userService.get(route.params['id']).pipe(
+        this.alertify.message('id: ' + route.params['id']);
+        const obs = this.userService.get(route.params['id']);
+        this.alertify.message('about to pipe()');
+        const piped = obs.pipe(
             catchError(error => {
                 this.alertify.error('Problem retrieving detail data');
                 this.router.navigate(['/members']);
 
                 return of(null);
-            })
-        );
+            }));
+        this.alertify.message('about to return');
+        return piped;
     }
 }

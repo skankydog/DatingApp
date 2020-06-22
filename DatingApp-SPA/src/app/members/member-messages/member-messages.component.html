@@ -1,0 +1,64 @@
+<div class="card">
+  <div class="card-body">
+    <div *ngIf="messages?.length === 0">
+      <p>No message yet... say hi by using the message control below</p>
+    </div>
+
+    <ul class="chat">
+
+      <li *ngFor="let mess of messages">
+
+        <!-- to them -->
+        <div *ngIf="mess.senderId == recipientId">
+          <span class="chat-img float-left">
+            <img src="{{mess.sendPhotoUrl}}" alt="{{mess.senderKnownAs}}" class="rounded-circle">
+          </span>
+          <div class="chat-body">
+            <div class="header">
+              <strong class="primary-font">{{mess.senderKnownAs}}</strong>
+              <small class="text-muted float-right">
+                <span class="fa fa-clock-o">{{mess.messageSent | timeago}}</span>
+              </small>
+            </div>
+            <p>{{mess.content}}</p>
+          </div>
+        </div>
+
+        <!-- to me -->
+        <div *ngIf="mess.senderId != recipientId">
+          <span class="chat-img float-right">
+            <img src="{{mess.senderPhotoUrl}}" alt="{{mess.senderKnownAs}}" class="rounded-circle">
+          </span>
+          <div class="chat-body">
+            <div class="header">
+              <small class="text-muted">
+                <span class="fa fa-clock-o">{{mess.messageSent | timeago}}</span>
+                <span *ngIf="!mess.isRead" class="text-danger">(unread))</span>
+                <span *ngIf="mess.isRead" class="text-success">(read {{mess.dateRead | timeago}}))</span>
+              </small>
+              <strong class="primary-font float-right">{{mess.senderKnownAs}}</strong>
+            </div>
+            <p>{{mess.content}}</p>
+          </div>
+        </div>
+
+      </li>
+
+    </ul>
+  </div>
+
+  <div class="card-footer">
+    
+    <form class="input-group" #messageForm="ngForm" (ngSubmit)="messageForm.valid && send()">
+      <input type="text" [(ngModel)]="newMessage.content"
+        name="content"
+        required
+      class="form-control input-sm" placeholder="send a private message">
+      <div class="input-group-append">
+        <button class="btn btn-primary" [disabled]="!messageForm.valid">Send</button>
+      </div>
+    </form>
+    
+  </div>
+
+</div>

@@ -42,7 +42,7 @@ export class MemberListComponent implements OnInit {
     this.loadUsers();
   }
 
-  pageChanged(event: any): void {
+  paged(event: any): void {
     this.pagination.currentPage = event.page;
     console.log(event.page);
     this.loadUsers();
