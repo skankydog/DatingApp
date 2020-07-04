@@ -18,10 +18,11 @@ export class MemberMessagesComponent implements OnInit {
   constructor(private userService: UserService, private authService: AuthService, private alertify: AlertifyService) { }
 
   ngOnInit() {
-
+    this.load();
   }
 
   load() {
+    this.alertify.message('MemberMessagesComponent:load()');
     const currentUserId = +this.authService.decodedToken.nameId; // + makes it a type of number, not any
     const obs = this.userService.getMessageThread(this.authService.decodedToken.nameid, this.recipientId)
       .pipe(
@@ -42,6 +43,7 @@ export class MemberMessagesComponent implements OnInit {
   }
 
   send() {
+    this.alertify.message('Top of the send function');
     this.newMessage.recipientId = this.recipientId;
     this.userService.sendMessage(this.authService.decodedToken.nameid, this.newMessage)
       .subscribe((msg: Message) => {

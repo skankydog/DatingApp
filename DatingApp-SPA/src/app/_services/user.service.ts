@@ -130,6 +130,7 @@ export class UserService {
   }
 
   sendMessage(id: number, message: Message) {
+    this.alertify.message('UserService:sendMessage - id=' + id + ' message=' + message.content);
     return this.http.post(this.baseUrl + 'users/' + id + '/messages', message);
   }
 

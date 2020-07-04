@@ -21,11 +21,11 @@ namespace DatingApp.API.Models
         public string City { get; set; }
         public string Country { get; set; }
 
-        public ICollection<Photo> Photos { get; set; }
+        public virtual ICollection<Photo> Photos { get; set; } // need virtual when using lazy loading
 
-        public ICollection<Like> Likers { get; set; }
-        public ICollection<Like> Likees { get; set; }
-        public ICollection<Message> MessagesSent { get; set; }
-        public ICollection<Message> MessagesReceived { get; set; }
+        public virtual  ICollection<Like> Likers { get; set; } // need virtual when using lazy loading
+        public virtual  ICollection<Like> Likees { get; set; } // need virtual when using lazy loading
+        public virtual  ICollection<Message> MessagesSent { get; set; } // need virtual when using lazy loading
+        public virtual  ICollection<Message> MessagesReceived { get; set; } // added virtual to make use of lazy loading
     }
 }
