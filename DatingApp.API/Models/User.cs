@@ -21,6 +21,8 @@ namespace DatingApp.API.Models
         public string City { get; set; }
         public string Country { get; set; }
 
+
+// need virtual when using lazy loading...
         public virtual ICollection<Photo> Photos { get; set; } // need virtual when using lazy loading
 
         public virtual  ICollection<Like> Likers { get; set; } // need virtual when using lazy loading
