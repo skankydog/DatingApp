@@ -13,6 +13,5 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-  dotnet build --configuration $(buildConfiguration)
+- dotnet build --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
-
