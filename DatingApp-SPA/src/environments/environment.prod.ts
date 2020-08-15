@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'api/'
+  apiUrl: 'https://dapp-jsd.azurewebsites.net/api/'
+  // apiUrl: 'http://localhost:5000/api/'
 };

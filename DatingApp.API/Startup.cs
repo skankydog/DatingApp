@@ -7,13 +7,17 @@ using System.Threading.Tasks;
 using AutoMapper;
 using DatingApp.API.Data;
 using DatingApp.API.Helpers;
+using DatingApp.API.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,50 +29,61 @@ namespace DatingApp.API
 {
     public class Startup
     {
+        public IConfiguration _configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            _configuration = configuration;
         }
-
-
-        public IConfiguration Configuration { get; }
 
 // conventioned-based naming - framework will call the appropriate one... Prod or Dev
-        public void ConfigureDevelopmentServices(IServiceCollection services)
-        {
+  //      public void ConfigureDevelopmentServices(IServiceCollection services)
+  //      {
             //services.AddDbContext<DataContext>(x => x.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDbContext<DataContext>(x => 
-                {
-                    x.UseLazyLoadingProxies();
-                    x.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
-                });
+            // the below configures EF for lazy loading
+      //      services.AddDbContext<DataContext>(x => 
+      //          {
+      //              x.UseLazyLoadingProxies();
+      //              x.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+      //          });
+  //                      services.AddDbContext<DataContext>();
 
-            ConfigureServices(services);
-        }
+  //          ConfigureServices(services);
+  //      }
 
-        public void ConfigureProductionServices(IServiceCollection services)
-        {
-            services.AddDbContext<DataContext>(x => 
-                {
-                    x.UseLazyLoadingProxies();
-                    x.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
-                });
+  //      public void ConfigureProductionServices(IServiceCollection services)
+  //      {
+      //      services.AddDbContext<DataContext>(x => 
+      //          {
+      //              x.UseLazyLoadingProxies();
+      //              x.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+      //          });
+                    
 
-            ConfigureServices(services);
-        }
+  //          ConfigureServices(services);
+  //      }
 
-// can this be private?
+
+
         public void ConfigureServices(IServiceCollection services)
         {
-            
-            services.AddControllers().AddNewtonsoftJson(opt =>
+            // This block of shit sets up identity framework for jwt. Also sets up default on the
+            // controllers to require authentication (override with [AllowAnonymous]). This is just
+            // a cut-and-paste block - not pretty and hard to understand what is happening
+            // <snip>
+            IdentityBuilder builder = services.AddIdentityCore<User>(opt =>
             {
-                opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                opt.Password.RequireDigit = false;  // simplify the password rules!!
+                opt.Password.RequiredLength = 4;
+                opt.Password.RequireNonAlphanumeric = false;
+                opt.Password.RequireUppercase = false;
             });
-            services.AddCors();
-            services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
-            services.AddScoped<IAuthRepository, AuthRepository>();
-            services.AddScoped<IDatingRepository, DatingRepository>();
+            builder = new IdentityBuilder(builder.UserType, typeof(Role), builder.Services);
+            builder.AddEntityFrameworkStores<DataContext>();
+            builder.AddRoleValidator<RoleValidator<Role>>();
+            builder.AddRoleManager<RoleManager<Role>>();
+            builder.AddSignInManager<SignInManager<User>>();
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options => {
                     options.TokenValidationParameters =
@@ -76,12 +91,46 @@ namespace DatingApp.API
                         {
                             ValidateIssuerSigningKey = true,
                             IssuerSigningKey = new SymmetricSecurityKey(
-                                Encoding.ASCII.GetBytes(Configuration.GetSection("AppSettings:Token").Value)),
+                                Encoding.ASCII.GetBytes(_configuration.GetSection("AppSettings:Token").Value)),
                             ValidateIssuer = false,
                             ValidateAudience = false
                         };
                     });
-                    services.AddAutoMapper(typeof(DatingRepository).Assembly);
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+                options.AddPolicy("ModeratePhotoRole", policy => policy.RequireRole("Admin", "Moderator"));
+                options.AddPolicy("VIPOnly", policy => policy.RequireRole("VIP"));
+            });
+
+            services.AddControllers(opts =>
+            {
+                var policyBuilder = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+                var policy = new AuthorizeFilter(policyBuilder);
+                opts.Filters.Add(policy);
+            })
+            .AddNewtonsoftJson(opt =>
+            {
+                opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            });
+            //</snip>
+
+            services.AddCors();
+
+
+
+            services.AddDbContext<DataContext>();
+         //   services.AddScoped<IAuthRepository, AuthRepository>();
+            services.AddScoped<IDatingRepository, DatingRepository>();
+
+            services.AddRouting(opt => opt.LowercaseUrls = true);
+
+            services.Configure<CloudinarySettings>(_configuration.GetSection("CloudinarySettings"));
+
+            services.AddAutoMapper(typeof(DatingRepository).Assembly);
+
             services.AddScoped<LogUserActivity>();
         }
 
@@ -94,19 +143,21 @@ namespace DatingApp.API
             }
             else
             {
-                app.UseExceptionHandler(builder => {
-                    builder.Run(async context => {
-                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                        var error = context.Features.Get<IExceptionHandlerFeature>();
+                // tmp
+      //          app.UseExceptionHandler(builder => {
+      //              builder.Run(async context => {
+      //                  context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+      //                  var error = context.Features.Get<IExceptionHandlerFeature>();
 
-                        if (error != null)
-                        {
-                            context.Response.AddApplicationError(error.Error.Message);
-                            await context.Response.WriteAsync(error.Error.Message);
-                        }
-                    });
-                });
+      //                  if (error != null)
+      //                  {
+      //                      context.Response.AddApplicationError(error.Error.Message);
+      //                      await context.Response.WriteAsync(error.Error.Message);
+      //                  }
+      //              });
+      //          });
             }
+app.UseDeveloperExceptionPage(); // tmp
 
             //app.UseHttpsRedirection();
             app.UseRouting();
@@ -114,13 +165,13 @@ namespace DatingApp.API
             app.UseAuthentication();
             app.UseAuthorization();
 
+            // the following is to allow us to serve the angular files from the API's Kestrel server...
             app.UseDefaultFiles();     // to allow us to serve the angular files from the API's Kestrel server
             app.UseStaticFiles();      // to allow us to serve the angular files from the API's Kestrel server
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapFallbackToController("Index", "Fallback"); // to allow us to serve the angular files from the API's Kestrel server
+                endpoints.MapFallbackToController("Index", "Fallback"); // Fallback controller
             });
         }
     }

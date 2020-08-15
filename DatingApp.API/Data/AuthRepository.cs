@@ -1,3 +1,4 @@
+/*
 using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -19,8 +20,8 @@ namespace DatingApp.API.Data
             byte[] passowrdHash, passwordSalt;
             CreatePasswordHash(password, out passowrdHash, out passwordSalt);
 
-            user.PasswordHash = passowrdHash;
-            user.PasswordSalt = passwordSalt;
+          //  user.PasswordHash = passowrdHash;
+          //  user.PasswordSalt = passwordSalt;
 
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
@@ -30,20 +31,20 @@ namespace DatingApp.API.Data
 
         public async Task<User> Login(string username, string password)
         {
-            var user = await _context.Users.Include(u => u.Photos).FirstOrDefaultAsync(x => x.Username == username);
+            var user = await _context.Users.Include(u => u.Photos).FirstOrDefaultAsync(x => x.UserName == username);
 
             if (user == null)
                 return null;
 
-            if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
-                return null;
+         //   if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+         //       return null;
 
             return user;
         }
 
         public async Task<bool> UserExists(string username)
         {
-            if (await _context.Users.AnyAsync(x => x.Username == username))
+            if (await _context.Users.AnyAsync(x => x.UserName == username))
                 return true;
 
             return false;
@@ -75,3 +76,4 @@ namespace DatingApp.API.Data
         }
     }
 }
+*/

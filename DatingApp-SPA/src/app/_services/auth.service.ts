@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from 'src/environments/environment';
 import { User } from '../_models/user';
+import { AlertifyService } from './alertify.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,7 @@ export class AuthService {
   photoUrl = new BehaviorSubject<string>('../../assets/user.png');
   currentPhotoUrl = this.photoUrl.asObservable();
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private alertify: AlertifyService) { }
 
   changeMemberPhoto(photoUrl: string) {
     this.photoUrl.next(photoUrl);
@@ -71,5 +72,32 @@ export class AuthService {
       this.currentUser = user;
       this.changeMemberPhoto(user.photoUrl);
     }
+  }
+
+  roleMatch(allowedRoles): boolean {
+    this.alertify.message('top of the roleMatch function');
+    let isMatch = false;
+    const userRoles = this.decodedToken.role as Array<string>;
+
+    if (userRoles) {
+      this.alertify.message('this user has roles');
+    } else {
+      this.alertify.message('this user has no roles');
+      return false;
+    }
+
+    allowedRoles.forEach(element => {
+
+      this.alertify.message(element);
+
+      if (userRoles.includes(element)) {
+        this.alertify.message('user is in the role');
+        isMatch = true;
+        //return;
+      }
+    });
+
+    this.alertify.message('bottom of the roleMatch function');
+    return isMatch;
   }
 }

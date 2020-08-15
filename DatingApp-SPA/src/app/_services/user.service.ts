@@ -45,6 +45,7 @@ export class UserService {
       params = params.append('likees', 'true');
     }
 
+    console.log('about to hit: ' + this.baseUrl + 'users');
                                                          // TEMPLATE: tell GET to pass back the full response, not just the body
     return this.http.get<User[]>(this.baseUrl + 'users', {observe: 'response', params})
       .pipe(
